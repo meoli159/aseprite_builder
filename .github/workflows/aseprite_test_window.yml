@@ -1,0 +1,44 @@
+name: Build Aseprite for Windows
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          choco install -y ninja
+          choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+          choco install -y skia
+      - name: Run CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DSKIA_DIR=C:\tools\skia -DSKIA_LIBRARY_DIR=C:\tools\skia\out\Release-x64 -DSKIA_LIBRARY=C:\tools\skia\out\Release-x64\skia.dll -DUSE_ALLEG4_BACKEND=OFF -DUSE_SKIA_BACKEND=ON -DUSE_HarfBuzz=OFF -DUSE_LIBWEBP_SUPPORT=OFF -DUSE_LIBPNG=ON ..
+      - name: Build Aseprite
+        run: |
+          cd build
+          ninja aseprite
+      - name: Create zip file
+        run: |
+          cd build
+          mkdir aseprite
+          copy bin\aseprite.exe aseprite
+          copy C:\tools\skia\out\Release-x64\skia.dll aseprite
+          copy C:\tools\skia\out\Release-x64\icudtl.dat aseprite
+          copy C:\tools\skia\out\Release-x64\libcrypto-1_1-x64.dll aseprite
+          copy C:\tools\skia\out\Release-x64\libssl-1_1-x64.dll aseprite
+          7z a aseprite.zip aseprite
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: aseprite-windows
+          path: build/aseprite.zip
