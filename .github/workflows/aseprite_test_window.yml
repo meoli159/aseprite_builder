@@ -17,7 +17,11 @@ jobs:
         run: |
           choco install -y ninja
           choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
-          choco install -y skia
+      - name: Download skia
+        uses: actions/download-artifact@v2
+        with:
+          name: skia-windows
+          path: C:\tools\skia
       - name: Run CMake
         run: |
           mkdir build
