@@ -78,8 +78,8 @@ jobs:
         run: |
           curl -o Skia-${{ runner.os }}-Release-x64.zip -L https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-${{ runner.os }}-Release-x64.zip
           unzip Skia-${{ runner.os }}-Release-x64.zip -d skia
+
       - name: Download libcrypto-1_1-x64
-        if: steps.skia-cache.outputs.cache-hit != 'true'
         run: |
           curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/libcrypto-1_1-x64.dll --output libcrypto-1_1-x64.dll
       - name: Download Aseprite release
