@@ -1,48 +1,119 @@
-name: Build Aseprite for Windows
+name: Build and release Aseprite for Windows
 
 on:
   push:
     branches:
       - master
+env:
+  BUILD_TYPE: Release
 
 jobs:
+  check-version:
+    name: Check latest Aseprite release
+    runs-on: ubuntu-latest
+    outputs:
+      download_url: ${{ steps.version_info.outputs.download_url }}
+      latest_tag: ${{ steps.version_info.outputs.latest_tag }}
+      should_build: ${{ steps.should_build.outputs.should_build }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Get latest version info
+        id: version_info
+        run: |
+          data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest)
+          LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
+          DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
+          VERSION_INFO=$(echo "${data}" | jq -r '.body')
+
+          echo "${LATEST_TAG}" > ${LATEST_TAG}.txt
+          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+          echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
+          echo "version_info<<EOF" >> $GITHUB_OUTPUT
+          echo "$VERSION_INFO" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Load version from cache
+        id: version_check
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.version_info.outputs.latest_tag }}.txt
+          key: cached_version
+
+      - name: Should we start new build?
+        id: should_build
+        if: steps.version_check.outputs.cache-hit != 'true'
+        run: echo "should_build=true" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        if: steps.should_build.outputs.should_build
+        uses: ncipollo/release-action@v1.14.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag: ${{ steps.version_info.outputs.latest_tag }}
+          name: Release Aseprite ${{ steps.version_info.outputs.latest_tag }}
+          body: |
+            ${{ steps.version_info.outputs.version_info }}
+          draft: true
+          prerelease: false
+
   build:
+    name: Build Aseprite for Windows
+    needs: check-version
     runs-on: windows-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v2
+      - name: (Windows) Install dependencies
+        uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Get Skia from cache
+        id: skia-cache
+        uses: actions/cache@v3
         with:
-          submodules: recursive
-      - name: Install dependencies
+          path: skia
+          key: skia-m102-windows-latest-cache
+
+      - name: Download Skia if not in cache
+        if: steps.skia-cache.outputs.cache-hit != 'true'
         run: |
-          choco install -y ninja
-          choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
-      - name: Download skia
-        uses: actions/download-artifact@v2
-        with:
-          name: skia-windows
-          path: C:\tools\skia
-      - name: Run CMake
+          curl -o Skia-${{ runner.os }}-Release-X64.zip -L https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-${{ runner.os }}-Release-X64.zip
+          unzip Skia-${{ runner.os }}-Release-X64.zip -d skia
+
+      - name: Download Aseprite release
         run: |
-          mkdir build
-          cd build
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DSKIA_DIR=C:\tools\skia -DSKIA_LIBRARY_DIR=C:\tools\skia\out\Release-x64 -DSKIA_LIBRARY=C:\tools\skia\out\Release-x64\skia.dll -DUSE_ALLEG4_BACKEND=OFF -DUSE_SKIA_BACKEND=ON -DUSE_HarfBuzz=OFF -DUSE_LIBWEBP_SUPPORT=OFF -DUSE_LIBPNG=ON ..
-      - name: Build Aseprite
-        run: |
-          cd build
-          ninja aseprite
-      - name: Create zip file
-        run: |
-          cd build
-          mkdir aseprite
-          copy bin\aseprite.exe aseprite
-          copy C:\tools\skia\out\Release-x64\skia.dll aseprite
-          copy C:\tools\skia\out\Release-x64\icudtl.dat aseprite
-          copy C:\tools\skia\out\Release-x64\libcrypto-1_1-x64.dll aseprite
-          copy C:\tools\skia\out\Release-x64\libssl-1_1-x64.dll aseprite
-          7z a aseprite.zip aseprite
+          curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
+          unzip Aseprite-source.zip -d aseprite
+
+      - name: Create build folder
+        run: mkdir -p aseprite/build
+
+      - name: (Windows) Set architecture for the produced binary
+        shell: cmd
+        run: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=x64
+
+      - name: (Windows) Setting Visual Studio build environment variables and paths
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: (Windows) Run CMake
+        working-directory: aseprite/build
+        shell: cmd
+        run: cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_IGNORE_PATH='C:/ProgramData/chocolatey/bin/;C:/Strawberry/c/bin/' -DLAF_BACKEND=skia -DSKIA_DIR=../../skia -DSKIA_LIBRARY_DIR=../../skia/out/Release-x64 -G Ninja ..
+
+      - name: Run Ninja
+        working-directory: aseprite/build
+        run: ninja aseprite
+
+      - name: Clean up build
+        working-directory: aseprite/build/bin
+        shell: bash
+        run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
+
+      - name: (Windows) Make portable zip
+        working-directory: aseprite/build/bin
+        run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: aseprite-windows
-          path: build/aseprite.zip
+          name: Aseprite-${{ needs.check-version.outputs.latest_tag }}
+          path: aseprite/build/bin/
