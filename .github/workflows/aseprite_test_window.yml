@@ -121,4 +121,5 @@ jobs:
           name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{runner.os}}
           path: |
             libcrypto-1_1-x64.dll
-            aseprite/build/bin/
+            aseprite/build/bin/data
+            aseprite/build/bin/aseprite.exe
