@@ -1,0 +1,101 @@
+name: Build and release Aseprite for Windows
+
+on:
+  push:
+    branches:
+      - master
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  check-version:
+    name: Check latest Aseprite release
+    runs-on: ubuntu-latest
+    outputs:
+      download_url: ${{ steps.version_info.outputs.download_url }}
+      latest_tag: ${{ steps.version_info.outputs.latest_tag }}
+      should_build: ${{ steps.should_build.outputs.should_build }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Get latest version info
+        id: version_info
+        run: |
+          data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest)
+          LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
+          DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
+          VERSION_INFO=$(echo "${data}" | jq -r '.body')
+
+          echo "${LATEST_TAG}" > ${LATEST_TAG}.txt
+          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+          echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
+          echo "version_info<<EOF" >> $GITHUB_OUTPUT
+          echo "$VERSION_INFO" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Load version from cache
+        id: version_check
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.version_info.outputs.latest_tag }}.txt
+          key: cached_version
+
+      - name: Should we start new build?
+        id: should_build
+        if: steps.version_check.outputs.cache-hit != 'true'
+        run: echo "should_build=true" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        if: steps.should_build.outputs.should_build
+        uses: ncipollo/release-action@v1.14.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag: ${{ steps.version_info.outputs.latest_tag }}
+          name: Release Aseprite ${{ steps.version_info.outputs.latest_tag }}
+          body: |
+            ${{ steps.version_info.outputs.version_info }}
+          draft: true
+          prerelease: false
+
+  build:
+    name: Build Aseprite for MacOS x64
+    needs: check-version
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up CMake for x86_64
+        working-directory: aseprite/build
+        run: cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -DLAF_BACKEND=skia -DSKIA_DIR=../../skia -DSKIA_LIBRARY_DIR=../../skia/out/Release-x64 -DSKIA_LIBRARY=../../skia/out/Release-x64/libskia.a -G Ninja ..
+
+      - name: Build with Ninja
+        working-directory: aseprite/build
+        run: ninja aseprite
+
+      - name: Clean up build artifacts
+        working-directory: aseprite/build/bin
+        shell: bash
+        run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
+
+      - name: Create Aseprite bundle
+        run: |
+          mkdir bundle
+          cd bundle
+          curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
+          mkdir mount
+          yes qy | hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-v1.2.27-trial-macOS.dmg
+          cp -rf mount/Aseprite.app .
+          hdiutil detach mount
+          rm -rf Aseprite.app/Contents/MacOS/aseprite
+          cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+          rm -rf Aseprite.app/Contents/Resources/data
+          cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+          cd ..
+
+      - name: Upload Aseprite artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}
+          path: bundle
