@@ -1,4 +1,4 @@
-name: Build and release Aseprite for Windows
+name: Build and release Aseprite for MacOS
 
 on:
   push:
@@ -65,6 +65,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: brew install ninja
+
+      - name: Get Skia from cache
+        id: skia-cache
+        uses: actions/cache@v4
+        with:
+          path: skia
+          key: skia-m102-macOS-latest-cache
+
+      - name: Download Skia if not in cache
+        if: steps.skia-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -o Skia-${{ runner.os }}-Release-x64.zip -L https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-${{ runner.os }}-Release-x64.zip
+          unzip Skia-${{ runner.os }}-Release-x64.zip -d skia
 
       - name: Set up CMake for x86_64
         working-directory: aseprite/build
