@@ -105,10 +105,19 @@ jobs:
       - name: Create Aseprite bundle
         shell: bash
         run: |
+          set -e
           mkdir -p bundle/mount
           cd bundle
           curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
+          if [[ $? -ne 0 ]]; then
+            echo "Failed to download Aseprite dmg"
+            exit 1
+          fi
           yes qy | hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          if [[ $? -ne 0 ]]; then
+            echo "Failed to attach dmg"
+            exit 1
+          fi
           cp -R mount/Aseprite.app .
           hdiutil detach mount
           rm -rf Aseprite.app/Contents/MacOS/aseprite
