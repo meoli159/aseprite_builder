@@ -108,7 +108,7 @@ jobs:
           cd bundle
           curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
           mkdir mount
-          yes qy | hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-v1.2.27-trial-macOS.dmg
+          yes qy | hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           cp -rf mount/Aseprite.app .
           hdiutil detach mount
           rm -rf Aseprite.app/Contents/MacOS/aseprite
