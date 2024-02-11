@@ -105,7 +105,7 @@ jobs:
 
       - name: Replace Aseprite binary in Aseprite.app
         run: |
-          curl -o Aseprite-Trial.dmg -L https://www.aseprite.org/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          curl -o Aseprite-Trial.dmg -L https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           hdiutil attach Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           cp -R /Volumes/Aseprite\ Trial/Aseprite.app .
           cp -R aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
