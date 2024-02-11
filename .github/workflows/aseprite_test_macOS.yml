@@ -86,6 +86,7 @@ jobs:
         run: |
           curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
           unzip Aseprite-source.zip -d aseprite
+
       - name: Create build folder
         run: mkdir -p aseprite/build
 
@@ -102,29 +103,12 @@ jobs:
         shell: bash
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
 
-      - name: Create Aseprite bundle
-        shell: bash
+      - name: Replace Aseprite binary in Aseprite.app
         run: |
-          set -e
-          mkdir -p bundle/mount
-          cd bundle
-          curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
-          if [[ $? -ne 0 ]]; then
-            echo "Failed to download Aseprite dmg"
-            exit 1
-          fi
-          yes qy | hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
-          if [[ $? -ne 0 ]]; then
-            echo "Failed to attach dmg"
-            exit 1
-          fi
-          cp -R mount/Aseprite.app .
-          hdiutil detach mount
-          rm -rf Aseprite.app/Contents/MacOS/aseprite
-          cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          rm -rf Aseprite.app/Contents/Resources/data
-          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
-          cd ..
+          curl -o Aseprite-Trial.dmg -L https://www.aseprite.org/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          hdiutil attach Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          cp -R /Volumes/Aseprite\ Trial/Aseprite.app .
+          cp -R aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
 
       - name: Upload Aseprite artifact
         uses: actions/upload-artifact@v3
