@@ -104,11 +104,19 @@ jobs:
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
 
       - name: Replace Aseprite binary in Aseprite.app
+        working-directory: aseprite
         run: |
-          curl -o Aseprite-Trial.dmg -L https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          mkdir -p bundle/mount
+          cd bundle
+          curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
           hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
-          cp -R /Volumes/Aseprite\ Trial/Aseprite.app .
-          cp -R aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+          cp -R mount/Aseprite.app .
+          hdiutil detach mount
+          rm -rf Aseprite.app/Contents/MacOS/aseprite
+          cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+          rm -rf Aseprite.app/Contents/Resources/data
+          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+          cd ..
 
       - name: Upload Aseprite artifact
         uses: actions/upload-artifact@v3
