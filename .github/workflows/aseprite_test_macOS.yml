@@ -105,12 +105,16 @@ jobs:
 
       - name: Download Aseprite trial
         working-directory: bundle
-        run: curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
+        run: |
+          pwd
+          curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
 
       - name: Extract Aseprite
         working-directory: bundle
         run: |
+          pwd
           7z x Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg -omount
+          ls mount
           cp -R mount/Aseprite.app .
 
       - name: Replace Aseprite binary in Aseprite.app
