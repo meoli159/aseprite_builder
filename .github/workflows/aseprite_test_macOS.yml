@@ -103,11 +103,17 @@ jobs:
         shell: bash
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
 
-      - name: Replace Aseprite binary in Aseprite.app
-        working-directory: aseprite
+      - name: create bundle folder
         run: |
+          echo "Current directory before 'mkdir':"
+          pwd
           mkdir -p bundle/mount
-          cd bundle
+          echo "Current directory after 'mkdir':"
+          pwd
+
+      - name: Replace Aseprite binary in Aseprite.app
+        working-directory: bundle
+        run: |
           curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
           hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           cp -R mount/Aseprite.app .
