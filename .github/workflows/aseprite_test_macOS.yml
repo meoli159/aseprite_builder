@@ -111,6 +111,10 @@ jobs:
         working-directory: bundle
         run: |
           hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+
+      - name: Copy all files in mount
+        working-directory: bundle
+        run: |
           cp -R mount/Aseprite.app .
           hdiutil detach mount
 
