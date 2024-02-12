@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.version_info.outputs.latest_tag }}.txt
-          key: cached_version
+          key: aseprite_cached_version
 
       - name: Should we start new build?
         id: should_build
@@ -61,6 +61,7 @@ jobs:
   build:
     name: Build Aseprite for MacOS x64
     needs: check-version
+    if: ${{ needs.check-version.outputs.should_build }}
     runs-on: macOS-latest
     steps:
       - name: Install dependencies
@@ -71,7 +72,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: skia
-          key: skia-m102-macOS-latest-cache
+          key: skia-m102-${{ runner.os }}-latest-cache
 
       - name: Download Skia if not in cache
         if: steps.skia-cache.outputs.cache-hit != 'true'
@@ -109,13 +110,12 @@ jobs:
 
       - name: Mount Aseprite
         working-directory: bundle
-        run: hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+        run: hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg cp -R mount/Aseprite.app . hdiutil detach mount
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
         run: |
-          cp -R mount/Aseprite.app .
-          hdiutil detach mount
+
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           rm -rf Aseprite.app/Contents/Resources/data
