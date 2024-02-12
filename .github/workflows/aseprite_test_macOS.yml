@@ -63,9 +63,6 @@ jobs:
     needs: check-version
     runs-on: macOS-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Install dependencies
         run: brew install ninja cmake
 
@@ -105,17 +102,14 @@ jobs:
 
       - name: create bundle folder
         run: |
-          echo "Current directory before 'mkdir':"
-          pwd
           mkdir -p bundle/mount
-          echo "Current directory after 'mkdir':"
-          pwd
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
         run: |
+          pwd
           curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
-          hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          yes qy | hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           cp -R mount/Aseprite.app .
           hdiutil detach mount
           rm -rf Aseprite.app/Contents/MacOS/aseprite
