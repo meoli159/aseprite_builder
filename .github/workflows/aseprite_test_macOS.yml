@@ -110,8 +110,8 @@ jobs:
       - name: Extract Aseprite
         working-directory: bundle
         run: |
-          7z x Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg 7z x
-          cp -R Aseprite.app .
+          7z x Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg -omount
+          cp -R mount/Aseprite.app .
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
