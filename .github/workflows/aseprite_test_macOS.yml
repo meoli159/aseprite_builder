@@ -107,10 +107,13 @@ jobs:
         working-directory: bundle
         run: curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
 
+      - name: Mount Aseprite
+        working-directory: bundle
+        run: hdiutil attach -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
         run: |
-          hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           cp -R mount/Aseprite.app .
           hdiutil detach mount
           rm -rf Aseprite.app/Contents/MacOS/aseprite
@@ -119,8 +122,8 @@ jobs:
           cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
           cd ..
 
-      - name: Upload Aseprite artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}
+          name: Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}
           path: bundle

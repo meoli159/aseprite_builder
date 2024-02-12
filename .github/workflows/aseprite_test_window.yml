@@ -63,7 +63,7 @@ jobs:
     needs: check-version
     runs-on: windows-latest
     steps:
-      - name: (Windows) Install dependencies
+      - name: Install dependencies
         uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Get Skia from cache
@@ -82,6 +82,7 @@ jobs:
       - name: Download libcrypto-1_1-x64
         run: |
           curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/libcrypto-1_1-x64.dll --output libcrypto-1_1-x64.dll
+
       - name: Download Aseprite release
         run: |
           curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
@@ -90,14 +91,14 @@ jobs:
       - name: Create build folder
         run: mkdir -p aseprite/build
 
-      - name: (Windows) Set architecture for the produced binary
+      - name: Set architecture for the produced binary
         shell: cmd
         run: call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=x64
 
-      - name: (Windows) Setting Visual Studio build environment variables and paths
+      - name: Setting Visual Studio build environment variables and paths
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: (Windows) Run CMake
+      - name: Run CMake
         working-directory: aseprite/build
         shell: cmd
         run: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -DSKIA_DIR=..\..\skia -DSKIA_LIBRARY_DIR=..\..\skia\out\Release-x64 -DSKIA_LIBRARY=..\..\skia\out\Release-x64\skia.lib -G Ninja ..
@@ -111,14 +112,10 @@ jobs:
         shell: bash
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
 
-      - name: (Windows) Make portable zip
-        working-directory: aseprite/build/bin
-        run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
-
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{runner.os}}
+          name: Aseprite-${{runner.os}}-${{ needs.check-version.outputs.latest_tag }}
           path: |
             libcrypto-1_1-x64.dll
             aseprite/build/bin/data
