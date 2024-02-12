@@ -64,7 +64,7 @@ jobs:
     runs-on: macOS-latest
     steps:
       - name: Install dependencies
-        run: brew install ninja cmake
+        run: brew install ninja cmake p7zip
 
       - name: Get Skia from cache
         id: skia-cache
@@ -107,16 +107,11 @@ jobs:
         working-directory: bundle
         run: curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
 
-      - name: Mount Aseprite
-        working-directory: bundle
+      - name: Extract Aseprite
+        working-directory: bundle/mount
         run: |
-          hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
-
-      - name: Copy all files in mount
-        working-directory: bundle
-        run: |
+          7z x Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg 7z x
           cp -R mount/Aseprite.app .
-          hdiutil detach mount
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
