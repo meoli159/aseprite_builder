@@ -116,13 +116,14 @@ jobs:
         run: |
           echo -e "spawn hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg\nexpect \"Agree Y/N?\"\nsend -- \"y\r\"\nexpect eof" > accept_eula.exp
           expect accept_eula.exp
+          ls 
           ls mount
-          cp -R mount/Aseprite.app .
-          hdiutil detach mount
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
         run: |
+          cp -R mount/Aseprite.app .
+          hdiutil detach mount
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           rm -rf Aseprite.app/Contents/Resources/data
