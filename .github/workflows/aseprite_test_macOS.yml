@@ -62,9 +62,11 @@ jobs:
     name: Build Aseprite for MacOS x64
     needs: check-version
     runs-on: macOS-latest
+    strategy:
+      fail-fast: false
     steps:
       - name: Install dependencies
-        run: brew install ninja cmake p7zip
+        run: brew install ninja cmake expect
 
       - name: Get Skia from cache
         id: skia-cache
@@ -112,8 +114,8 @@ jobs:
       - name: Extract Aseprite
         working-directory: bundle
         run: |
-          ls
-          hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          echo -e "spawn hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg\nexpect \"Agree Y/N?\"\nsend -- \"y\r\"\nexpect eof" > accept_eula.exp
+          expect accept_eula.exp
           cp -R mount/Aseprite.app .
           hdiutil detach mount
 
