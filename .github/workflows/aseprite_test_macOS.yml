@@ -5,7 +5,7 @@ on:
     branches:
       - master
 env:
-  BUILD_TYPE: Release
+  build_type: Release
 
 jobs:
   check-version:
@@ -106,14 +106,14 @@ jobs:
       - name: Download Aseprite trial
         working-directory: bundle
         run: |
-
+          pwd
           curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
 
       - name: Extract Aseprite
         working-directory: bundle
         run: |
-          hdiutil attach Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg -mountpoint mount
-          ls mount
+          ls
+          hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           cp -R mount/Aseprite.app .
           hdiutil detach mount
 
@@ -124,7 +124,6 @@ jobs:
           cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           rm -rf Aseprite.app/Contents/Resources/data
           cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
-          cd ..
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
