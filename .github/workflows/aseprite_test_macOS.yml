@@ -115,7 +115,7 @@ jobs:
         working-directory: bundle
         run: |
           expect -c "
-          spawn hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-\${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          spawn hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           expect \"Agree Y/N\"
           send \"y\r\"
           expect eof
@@ -125,6 +125,8 @@ jobs:
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
         run: |
+          ls
+          ls mount
           cp -R mount/Aseprite.app .
           hdiutil detach mount
           rm -rf Aseprite.app/Contents/MacOS/aseprite
