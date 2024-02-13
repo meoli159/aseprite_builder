@@ -114,7 +114,7 @@ jobs:
       - name: Extract Aseprite
         working-directory: bundle
         run: |
-          y | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          yes | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
