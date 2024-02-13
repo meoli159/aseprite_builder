@@ -113,28 +113,36 @@ jobs:
 
       - name: Extract Aseprite
         working-directory: bundle
+        shell: bash
         run: |
           printf 'y\n'| hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           ls
 
       - name: Copy and unmount
         working-directory: bundle
+        shell: bash
         run: |
           cp -R mount/Aseprite.app .
           hdiutil detach mount
           ls
 
-      #   - name: Replace Aseprite binary in Aseprite.app
-      #     working-directory: bundle
-      #     run: |
-      #       ls ../aseprite/build/bin
-      #       rm -rf Aseprite.app/Contents/MacOS/aseprite
-      #       cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-      #       rm -rf Aseprite.app/Contents/Resources/data
-      #       cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+      - name: Replace Aseprite binary in Aseprite.app
+        working-directory: bundle
+        shell: bash
+        run: |
+          rm -rf Aseprite.app/Contents/MacOS/aseprite
+          cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+          rm -rf Aseprite.app/Contents/Resources/data
+          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+      - name: Clean up build artifacts
+        working-directory: bundle
+        shell: bash
+        run: rm -f Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}
-          path: bundle
+          path: |
+            aseprite/build
+            bundle
