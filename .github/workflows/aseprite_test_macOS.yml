@@ -114,20 +114,11 @@ jobs:
       - name: Extract Aseprite
         working-directory: bundle
         run: |
-          expect -c "
-          spawn hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
-          expect \"Agree Y/N\"
-          sleep 25
-          send \"y\r\"
-          expect eof
-          "
-          ls mount
+          y | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
         run: |
-          ls
-          ls mount
           cp -R mount/Aseprite.app .
           hdiutil detach mount
           rm -rf Aseprite.app/Contents/MacOS/aseprite
