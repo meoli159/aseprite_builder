@@ -137,4 +137,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}
-          path: bundle/Aseprite.app
+          path: bundle
