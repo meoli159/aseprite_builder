@@ -144,5 +144,5 @@ jobs:
         with:
           name: Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}
           path: |
-            aseprite/build
+            aseprite/build/bin
             bundle
