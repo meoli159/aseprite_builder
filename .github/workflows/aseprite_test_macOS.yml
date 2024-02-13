@@ -117,6 +117,7 @@ jobs:
           expect -c "
           spawn hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
           expect \"Agree Y/N\"
+          sleep 2
           send \"y\r\"
           expect eof
           "
