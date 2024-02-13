@@ -102,45 +102,43 @@ jobs:
         shell: bash
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
 
-      #   - name: Create bundle folder
-      #     run: mkdir -p bundle/mount
+      - name: Create bundle folder
+        run: mkdir -p bundle/mount
 
-      #   - name: Download Aseprite trial
-      #     working-directory: bundle
-      #     run: |
-      #       pwd
-      #       curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
+      - name: Download Aseprite trial
+        working-directory: bundle
+        run: |
+          curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
 
-      #   - name: Extract Aseprite
-      #     working-directory: bundle
-      #     shell: bash
-      #     run: |
-      #       printf 'y\n'| hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
-      #       ls
+      - name: Extract Aseprite
+        working-directory: bundle
+        shell: bash
+        run: |
+          printf 'y\n'| hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
 
-      #   - name: Copy and unmount
-      #     working-directory: bundle
-      #     shell: bash
-      #     run: |
-      #       cp -R mount/Aseprite.app .
-      #       hdiutil detach mount
-      #       ls
+      - name: Copy and unmount
+        working-directory: bundle
+        shell: bash
+        run: |
+          cp -R mount/Aseprite.app .
+          hdiutil detach mount
 
-      #   - name: Replace Aseprite binary in Aseprite.app
-      #     working-directory: bundle
-      #     shell: bash
-      #     run: |
-      #       rm -rf Aseprite.app/Contents/MacOS/aseprite
-      #       cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-      #       rm -rf Aseprite.app/Contents/Resources/data
-      #       cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
-      #   - name: Clean up build artifacts
-      #     working-directory: bundle
-      #     shell: bash
-      #     run: rm -f Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+      - name: Replace Aseprite binary in Aseprite.app
+        working-directory: bundle
+        shell: bash
+        run: |
+          rm -rf Aseprite.app/Contents/MacOS/aseprite
+          cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+          rm -rf Aseprite.app/Contents/Resources/data
+          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+
+      - name: Clean up build artifacts
+        working-directory: bundle
+        shell: bash
+        run: rm -f Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
 
       - name: Create release
-        working-directory: aseprite/build/bin
+        working-directory: bundle
         run: 7z -tzip a Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}-${{ matrix.architecture }}.zip *
 
       - name: Upload release
@@ -149,5 +147,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.check-version.outputs.latest_tag }}
-          files: aseprite/build/bin/Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}-${{ matrix.architecture }}.zip
+          files: bundle/Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip
           draft: true
