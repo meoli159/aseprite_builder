@@ -139,7 +139,7 @@ jobs:
 
       - name: Create release
         working-directory: bundle
-        run: 7z -tzip a Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}-${{ matrix.architecture }}.zip *
+        run: 7z -tzip a Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip *
 
       - name: Upload release
         uses: softprops/action-gh-release@v1
