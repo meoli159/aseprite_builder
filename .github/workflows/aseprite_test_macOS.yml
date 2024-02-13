@@ -115,12 +115,17 @@ jobs:
         working-directory: bundle
         run: |
           yes | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+          cp -R mount/Aseprite.app .
+          hdiutil detach mount
 
       - name: Replace Aseprite binary in Aseprite.app
         working-directory: bundle
         run: |
-          cp -R mount/Aseprite.app .
-          hdiutil detach mount
+          ls ..
+          ls ../aseprite
+          ls ../aseprite/build
+          ls ../aseprite/build/bin
+          echo" >>>>>> copy file"
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           rm -rf Aseprite.app/Contents/Resources/data
