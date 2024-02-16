@@ -1,6 +1,8 @@
 name: Build and release Aseprite for MacOS
 
 on:
+  schedule:
+    - cron: '0 0 * * 0'
   push:
     branches:
       - master
@@ -135,7 +137,7 @@ jobs:
       - name: Clean up build artifacts
         working-directory: bundle
         shell: bash
-        run: rm -f Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+        run: rm -f mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
 
       - name: Create release
         working-directory: bundle

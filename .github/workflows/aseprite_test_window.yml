@@ -115,11 +115,15 @@ jobs:
         shell: bash
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Create release
+        working-directory: aseprite/build/bin
+        run: 7z a Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip libcrypto-1_1-x64.dll aseprite/build/bin/data aseprite/build/bin/aseprite.exe
+
+      - name: Upload release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Aseprite-${{runner.os}}-${{ needs.check-version.outputs.latest_tag }}
-          path: |
-            libcrypto-1_1-x64.dll
-            aseprite/build/bin/data
-            aseprite/build/bin/aseprite.exe
+          tag_name: ${{ needs.check-version.outputs.latest_tag }}
+          files: aseprite/build/bin/Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip
+          draft: true
