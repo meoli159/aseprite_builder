@@ -135,10 +135,12 @@ jobs:
           rm -rf Aseprite.app/Contents/Resources/data
           cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
 
-      - name: Clean up build artifacts
+      - name: Clean up bundle
         working-directory: bundle
         shell: bash
-        run: rm -f mount Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg
+        run: |
+           rm -f Aseprite-v1.3.4-trial-macOS.dmg
+           rm -r mount
 
       - name: Create release
         working-directory: bundle
