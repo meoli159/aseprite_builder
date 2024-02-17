@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.version_info.outputs.latest_tag }}.txt
-          key: aseprite_cached_version
+          key: aseprite_cached_${{ steps.version_info.outputs.latest_tag }}
 
       - name: Should we start new build?
         id: should_build
@@ -124,5 +124,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.check-version.outputs.latest_tag }}
-          files: aseprite/build/bin/Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip
+          files: Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip
           draft: true
