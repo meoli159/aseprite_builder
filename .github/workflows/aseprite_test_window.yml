@@ -82,11 +82,6 @@ jobs:
           curl -o Skia-${{ runner.os }}-Release-x64.zip -L https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-${{ runner.os }}-Release-x64.zip
           unzip Skia-${{ runner.os }}-Release-x64.zip -d skia
 
-      - name: Download libcrypto-1_1-x64
-        working-directory: aseprite/build/bin
-        run: |
-          curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/libcrypto-1_1-x64.dll --output libcrypto-1_1-x64.dll
-
       - name: Download Aseprite release
         run: |
           curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
@@ -115,6 +110,11 @@ jobs:
         working-directory: aseprite/build/bin
         shell: bash
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
+
+      - name: Download libcrypto-1_1-x64
+        working-directory: aseprite/build/bin
+        run: |
+          curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/libcrypto-1_1-x64.dll --output libcrypto-1_1-x64.dll
 
       - name: Create release
         working-directory: aseprite/build/bin
