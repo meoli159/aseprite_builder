@@ -126,5 +126,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.check-version.outputs.latest_tag }}
-          files: Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip
+          files: aseprite/build/bin/Aseprite-${{ runner.os }}-${{ needs.check-version.outputs.latest_tag }}.zip
           draft: true
