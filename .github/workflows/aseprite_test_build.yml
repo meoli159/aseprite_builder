@@ -164,7 +164,13 @@ jobs:
     steps:
       - name: Install dependencies
         uses: seanmiddleditch/gha-setup-ninja@master
-
+        
+      - name: Install dependencies
+        run: |
+          choco install ninja
+          choco install cmake
+          choco install libjpeg-turbo
+          
       - name: Get Skia from cache
         id: skia-cache
         uses: actions/cache@v4
