@@ -1,4 +1,4 @@
-name: Build and release Aseprite for MacOS
+name: Build and release Aseprite for Win/MacOS intel
 
 on:
   workflow_dispatch:
@@ -171,7 +171,11 @@ jobs:
         with:
           path: skia
           key: skia-m102-${{ runner.os }}-latest-cache
-
+          
+      - name: Remove OpenSLL from PATH
+        shell: powershell
+        run: Remove-Item -Recurse -Force "C:\Program Files\OpenSSL\"
+        
       - name: Download Skia if not in cache
         if: steps.skia-cache.outputs.cache-hit != 'true'
         run: |
@@ -182,7 +186,9 @@ jobs:
         run: |
           curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
           unzip Aseprite-source.zip -d aseprite
+          
 
+        
       - name: Create build folder
         run: mkdir -p aseprite/build
 
