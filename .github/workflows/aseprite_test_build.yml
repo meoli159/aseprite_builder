@@ -197,7 +197,6 @@ jobs:
         run: |
           curl -LO https://github.com/Kitware/CMake/releases/download/v3.31.5/cmake-3.31.5-windows-x86_64.zip
           unzip cmake-3.31.5-windows-x86_64.zip -d $HOME/cmake
-          echo "::add-path::${HOME}/cmake/cmake-3.21.2-windows-x86_64/bin"
           
       - name: Run CMake
         working-directory: aseprite/build
