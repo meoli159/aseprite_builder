@@ -165,12 +165,6 @@ jobs:
       - name: Install dependencies
         uses: seanmiddleditch/gha-setup-ninja@master
         
-      - name: Install dependencies
-        run: |
-          choco install ninja
-          choco install cmake
-          choco install libjpeg-turbo
-          
       - name: Get Skia from cache
         id: skia-cache
         uses: actions/cache@v4
@@ -198,7 +192,13 @@ jobs:
 
       - name: Setting Visual Studio build environment variables and paths
         uses: ilammy/msvc-dev-cmd@v1
-
+        
+      - name: Update CMake
+        run: |
+          curl -LO https://github.com/Kitware/CMake/releases/download/v3.31.5/cmake-3.31.5-windows-x86_64.zip
+          unzip cmake-3.31.5-windows-x86_64.zip -d $HOME/cmake
+          echo "::add-path::${HOME}/cmake/cmake-3.21.2-windows-x86_64/bin"
+          
       - name: Run CMake
         working-directory: aseprite/build
         shell: cmd
