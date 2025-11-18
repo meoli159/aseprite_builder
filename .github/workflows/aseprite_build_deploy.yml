@@ -41,9 +41,9 @@ jobs:
         with:
           tag: ${{ needs.fetch-aseprite-info.outputs.release-tag }}
           body: Aseprite-${{ needs.fetch-aseprite-info.outputs.release-tag }}
-          skipIfReleaseExists: true
+          draft: true
+          prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-
   build-aseprite:
     name: Build Aseprite
     needs: create-release
@@ -133,3 +133,4 @@ jobs:
           file: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           tag: ${{ needs.create-release.outputs.release-tag }}
+          draft: true
