@@ -104,8 +104,7 @@ jobs:
           fi
           curl -L -o $SKIA_ZIP "https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/${SKIA_ZIP}"
           unzip $SKIA_ZIP -d skia
-          which skia
-
+          ls
       # - name: Download Aseprite source
       #   run: |
       #     curl -L -o Aseprite-source.zip "${{ needs.check-version.outputs.download_url }}"
@@ -218,7 +217,7 @@ jobs:
         run: |
           curl -L -o Skia-windows-Release-x64.zip https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-windows-Release-x64.zip
           unzip -xf Skia-windows-Release-x64.zip -d skia
-          ls -a
+          ls
 
       - name: Clone Aseprite
         run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
