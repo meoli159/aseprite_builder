@@ -114,12 +114,15 @@ jobs:
       #     if [ -d "aseprite/$DIR" ]; then
       #       mv aseprite/$DIR/* aseprite/
       #     fi
+      - name: Skia find
+        run: which skia
+        
       - name: Clone Aseprite
         run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
 
       - name: Create build folder
-        run: which skia mkdir -p aseprite/build 
-
+        run: mkdir -p aseprite/build 
+       
       - name: Configure CMake
         working-directory: aseprite/build
         run: |
@@ -217,12 +220,15 @@ jobs:
         run: |
           curl -L -o Skia-windows-Release-x64.zip https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-windows-Release-x64.zip
           unzip -xf Skia-windows-Release-x64.zip -d skia
-
+          
+      - name: Skia find
+        run: which skia
+        
       - name: Clone Aseprite
         run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
 
       - name: Create build folder
-        run: which skia mkdir -p aseprite/build
+        run: mkdir -p aseprite/build
 
       - name: Setup MSVC Developer Command Prompt
         uses: TheMrMilchmann/setup-msvc-dev@v3
