@@ -114,16 +114,20 @@ jobs:
       #     if [ -d "aseprite/$DIR" ]; then
       #       mv aseprite/$DIR/* aseprite/
       #     fi
-      - name: Skia find
-        run: ls
-      - name: Create build folder
-        run: mkdir -p aseprite/build 
-      - name: Skia find
-        working-directory: aseprite/build
-        run: ls  
         
       - name: Clone Aseprite
         run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
+     
+      - name: Create build folder
+        run: mkdir -p aseprite/build 
+        
+      - name: Skia find
+        working-directory: aseprite/build
+        run: ls $HOME/skia
+        
+      - name: Skia find
+        working-directory: aseprite/build
+        run: ls $HOME
         
       - name: Configure CMake
         working-directory: aseprite/build
@@ -146,7 +150,7 @@ jobs:
             $( [ "$ARCH" = "arm64" ] && echo "-DPNG_ARM_NEON:STRING=on" ) \
             -G Ninja \
             ..
-
+      
       - name: Build with Ninja
         working-directory: aseprite/build
         run: ninja aseprite
@@ -222,9 +226,6 @@ jobs:
         run: |
           curl -L -o Skia-windows-Release-x64.zip https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-windows-Release-x64.zip
           unzip -xf Skia-windows-Release-x64.zip -d skia
-          
-      - name: Skia find
-        run: which skia
         
       - name: Clone Aseprite
         run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
