@@ -134,9 +134,9 @@ jobs:
             -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY \
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
             -DLAF_BACKEND=skia \
-            -DSKIA_DIR=../../skia \
-            -DSKIA_LIBRARY_DIR=../../skia/out/Release-$ARCH \
-            -DSKIA_LIBRARY=../../skia/out/Release-$ARCH/libskia.a \
+            -DSKIA_DIR=$(realpath ../../skia) \
+            --DSKIA_LIBRARY_DIR=$(realpath ../../skia/out/Release-$ARCH) \
+            -DSKIA_LIBRARY=$(realpath../../skia/out/Release-$ARCH/libskia.a) \
             $( [ "$ARCH" = "arm64" ] && echo "-DPNG_ARM_NEON:STRING=on" ) \
             -G Ninja ..
 
@@ -230,7 +230,7 @@ jobs:
       - name: Configure CMake (Windows)
         working-directory: aseprite/build
         shell: cmd
-        run: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -DSKIA_DIR="../../skia" -DSKIA_LIBRARY_DIR="../../skia/out/Release-x64" -DSKIA_LIBRARY="../../skia/out/Release-x64/skia.lib" -G Ninja ..
+        run: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -DSKIA_DIR="$(Convert-Path ../../skia)" -DSKIA_LIBRARY_DIR="$(Convert-Path ../../skia/out/Release-x64)" -DSKIA_LIBRARY="$(Convert-Path ../../skia/out/Release-x64/skia.lib)" -G Ninja ..
 
       - name: Build with Ninja
         working-directory: aseprite/build
