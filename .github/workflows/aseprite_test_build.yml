@@ -113,6 +113,8 @@ jobs:
           if [ -d "aseprite/$DIR" ]; then
             mv aseprite/$DIR/* aseprite/
           fi
+      - name: Clone Aseprite
+        run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
 
       - name: Create build folder
         run: mkdir -p aseprite/build
@@ -212,7 +214,7 @@ jobs:
         if: steps.skia-cache.outputs.cache-hit != 'true'
         run: |
           curl -L -o Skia-windows-Release-x64.zip https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-windows-Release-x64.zip
-          tar -xf Skia-windows-Release-x64.zip -C skia
+          unzip -xf Skia-windows-Release-x64.zip -d skia
 
       - name: Clone Aseprite
         run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
