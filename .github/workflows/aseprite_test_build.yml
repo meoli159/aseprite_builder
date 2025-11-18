@@ -135,11 +135,12 @@ jobs:
             -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY \
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
             -DLAF_BACKEND=skia \
-            -DSKIA_DIR=../../skia \
-            -DSKIA_LIBRARY_DIR=../deps/skia/out/Release-$ARCH \
-            -DSKIA_LIBRARY=../deps/skia/out/Release-$ARCH/libskia.a \
+            -DSKIA_DIR=$HOME/deps/skia \
+            -DSKIA_LIBRARY_DIR=$HOME/deps/skia/out/Release-$ARCH \
+            -DSKIA_LIBRARY=.$HOME/deps/skia/out/Release-$ARCH/libskia.a \
             $( [ "$ARCH" = "arm64" ] && echo "-DPNG_ARM_NEON:STRING=on" ) \
-            -G Ninja ..
+            -G Ninja \
+            ..
 
       - name: Build with Ninja
         working-directory: aseprite/build
@@ -231,7 +232,15 @@ jobs:
       - name: Configure CMake (Windows)
         working-directory: aseprite/build
         shell: cmd
-        run: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLAF_BACKEND=skia -DSKIA_DIR="../deps/skia" -DSKIA_LIBRARY_DIR="../deps/skia/out/Release-x64" -DSKIA_LIBRARY="../deps/skia/out/Release-x64/skia.lib" -G Ninja ..
+        run: |
+          cmake \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DLAF_BACKEND=skia \
+          -DSKIA_DIR="C:\deps\skia" \
+          -DSKIA_LIBRARY_DIR=":\deps\skia\out\Release-x64" \
+          -DSKIA_LIBRARY=".:\deps\\skia\out\Release-x64\skia.lib" \
+          -G Ninja \
+          ..
         
       - name: Build with Ninja
         working-directory: aseprite/build
