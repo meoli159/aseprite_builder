@@ -104,15 +104,15 @@ jobs:
           curl -L -o $SKIA_ZIP "https://github.com/aseprite/skia/releases/download/m102-861e4743af/${SKIA_ZIP}"
           unzip $SKIA_ZIP -d skia
 
-      - name: Download Aseprite source
-        run: |
-          curl -L -o Aseprite-source.zip "${{ needs.check-version.outputs.download_url }}"
-          unzip Aseprite-source.zip -d aseprite
-          # Normalize folder if unzip creates nested directory
-          DIR=$(ls aseprite)
-          if [ -d "aseprite/$DIR" ]; then
-            mv aseprite/$DIR/* aseprite/
-          fi
+      # - name: Download Aseprite source
+      #   run: |
+      #     curl -L -o Aseprite-source.zip "${{ needs.check-version.outputs.download_url }}"
+      #     unzip Aseprite-source.zip -d aseprite
+      #     # Normalize folder if unzip creates nested directory
+      #     DIR=$(ls aseprite)
+      #     if [ -d "aseprite/$DIR" ]; then
+      #       mv aseprite/$DIR/* aseprite/
+      #     fi
       - name: Clone Aseprite
         run: git clone --recursive --branch "${{ needs.check-version.outputs.latest_tag }}" --depth 1 https://github.com/aseprite/aseprite.git
 
