@@ -138,12 +138,13 @@ jobs:
         shell: bash
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-          cp -R mount/Aseprite.app .
+        
       - name: Replace Binary (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: aseprite/bundle
         shell: bash
         run: |
+          cp -R mount/Aseprite.app .
           hdiutil detach mount           
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -R ./aseprite ./Aseprite.app/Contents/MacOS/aseprite        
