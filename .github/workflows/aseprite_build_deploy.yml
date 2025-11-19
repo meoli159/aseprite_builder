@@ -116,6 +116,7 @@ jobs:
             -DSKIA_DIR=$(realpath skia) \
             -DOPENSSL_USE_STATIC_LIBS=ON \
             -DSKIA_LIBRARY_DIR=$(realpath skia/out/Release-$skia_arch)
+            
       - name: Compiling
         shell: bash
         working-directory: aseprite
@@ -137,11 +138,11 @@ jobs:
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           cp -R mount/Aseprite.app .
-          hdiutil detach mount
+          hdiutil detach mount           
           rm -rf Aseprite.app/Contents/MacOS/aseprite
-          cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+          cp -R ./aseprite ./Aseprite.app/Contents/MacOS/aseprite        
           rm -rf Aseprite.app/Contents/Resources/data
-          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+          cp -R ./data ./Aseprite.app/Contents/Resources/data
         # Clean up
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
@@ -168,10 +169,9 @@ jobs:
 
       - name: Upload release
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           tag_name: ${{ needs.create-release.outputs.release-tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           draft: true
