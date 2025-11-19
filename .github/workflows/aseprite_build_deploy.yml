@@ -123,22 +123,27 @@ jobs:
         run: |
           cd build && ninja
       - name: Create bundle folder
+        working-directory: aseprite
         run: mkdir -p bundle/mount
       # macOS-only trial/download steps:
       - name: Download Aseprite trial (macOS only)
         if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
+        working-directory: aseprite/bundle
         shell: bash
         run: |
           curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-
-      - name: Extract & Replace Binary (macOS only)
+      - name: Extract Aseprite trial (macOS only)
         if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
+        working-directory: aseprite/bundle
         shell: bash
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           cp -R mount/Aseprite.app .
+      - name: Replace Binary (macOS only)
+        if: ${{ runner.os == 'macOS' }}
+        working-directory: aseprite/bundle
+        shell: bash
+        run: |
           hdiutil detach mount           
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -R ./aseprite ./Aseprite.app/Contents/MacOS/aseprite        
@@ -147,7 +152,7 @@ jobs:
         # Clean up
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
+        working-directory: aseprite/bundle
         shell: bash
         run: |
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
