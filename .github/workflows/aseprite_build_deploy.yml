@@ -120,6 +120,36 @@ jobs:
         working-directory: aseprite
         run: |
           cd build && ninja
+          
+      - name: Download Aseprite trial
+        working-directory: bundle
+        run: |
+          curl -O -J "https://www.aseprite.org/downloads/trial/Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
+
+      - name: Extract Aseprite trial
+        working-directory: bundle
+        shell: bash
+        run: |
+          printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
+
+      - name: Copy compiled binary and unmount
+        working-directory: bundle
+        shell: bash
+        run: |
+          cp -R mount/Aseprite.app .
+          hdiutil detach mount
+          rm -rf Aseprite.app/Contents/MacOS/aseprite
+          cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+          rm -rf Aseprite.app/Contents/Resources/data
+          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+
+      - name: Clean up bundle
+        working-directory: bundle
+        shell: bash
+        run: |
+          rm -f "Aseprite-${{ needs.check-version.outputs.latest_tag }}-trial-macOS.dmg"
+          rm -r mount
+
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
         shell: bash
