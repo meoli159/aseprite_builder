@@ -149,7 +149,7 @@ jobs:
           cp -R mount/Aseprite.app .
           hdiutil detach mount           
           rm -rf Aseprite.app/Contents/MacOS/aseprite
-          cp -R ../aseprite ../Aseprite.app/Contents/MacOS/aseprite        
+          cp -R .. ../Aseprite.app/Contents/MacOS/aseprite        
           rm -rf Aseprite.app/Contents/Resources/data
           cp -R ../data ../Aseprite.app/Contents/Resources/data
         # Clean up
