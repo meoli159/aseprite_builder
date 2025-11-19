@@ -150,7 +150,7 @@ jobs:
         shell: bash
         run: |
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-          rm -r mount
+          rm -rf mount
 
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
