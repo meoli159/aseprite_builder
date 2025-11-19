@@ -137,5 +137,5 @@ jobs:
         with:
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
-          tag_name:: ${{ needs.create-release.outputs.release-tag }}
+          tag_name: ${{ needs.create-release.outputs.release-tag }}
           draft: true
