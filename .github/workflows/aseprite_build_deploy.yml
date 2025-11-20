@@ -152,6 +152,11 @@ jobs:
           rm -rf Aseprite.app/Contents/Resources/data
           cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/Resources/data
         # Clean up
+        
+      - name: View bundle folder
+        working-directory: bundle
+        run: ls
+        
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
@@ -160,11 +165,15 @@ jobs:
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           rm -r mount
 
-      - name: Clean Up Build folder
+      # - name: Clean Up Build folder
+      #   working-directory: aseprite/build/bin
+      #   shell: bash
+      #   run: |
+      #     find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
+      - name: Clean up build artifacts
         working-directory: aseprite/build/bin
         shell: bash
-        run: |
-          find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
+        run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
 
       - name: Make portable zip
         working-directory: aseprite/build/bin
@@ -176,10 +185,10 @@ jobs:
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
 
       - name: Upload release
-        uses: softprops/action-gh-release@v1
+        uses: svenstaro/upload-release-action@v2
         with:
-          files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
-          name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
-          tag_name: ${{ needs.create-release.outputs.release-tag }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
+          asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
+          tag: ${{ needs.create-release.outputs.release-tag }}
           draft: true
