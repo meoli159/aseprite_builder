@@ -188,11 +188,11 @@ jobs:
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
       
-      - name: Create release zip (macOS)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        run: |
-          7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
+      # - name: Create release zip (macOS)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   run: |
+      #     7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
 
       # - name: Upload release (macOS)
       #   if: ${{ runner.os == 'macOS' }}
