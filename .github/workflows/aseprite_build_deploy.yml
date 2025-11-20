@@ -47,6 +47,7 @@ jobs:
           name: "Release Aseprite ${{ needs.fetch-aseprite-info.outputs.release-tag }}"
           skipIfReleaseExists: true
           draft: true
+          
 
   build-aseprite:
     name: Build Aseprite
@@ -163,13 +164,6 @@ jobs:
         run: |
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           rm -rf mount
-          
-      - name: Clean Up Build folder
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: |
-          find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
       
       - name: Clean Up Build folder
         if: ${{ runner.os != 'macOS' }}
