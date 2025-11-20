@@ -46,7 +46,7 @@ jobs:
           body: Aseprite-${{ needs.fetch-aseprite-info.outputs.release-tag }}
           name: "Release Aseprite ${{ needs.fetch-aseprite-info.outputs.release-tag }}"
           skipIfReleaseExists: true
-          
+          allowUpdates: true
 
   build-aseprite:
     name: Build Aseprite
@@ -145,8 +145,11 @@ jobs:
         shell: bash
         run: |
           cp -R mount/Aseprite.app .
-          cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data   
+          ls -R mount
+          rm -rf Aseprite.app/Contents/MacOS/aseprite
+          rm -rf Aseprite.app/Contents/Resources/data
+          ditto "../aseprite/build/bin/aseprite" "Aseprite.app/Contents/MacOS/aseprite"
+          ditto "../aseprite/build/bin/data" "Aseprite.app/Contents/Resources/data"
           hdiutil detach mount || true
            
       - name: Clean up bundle (macOS only)
@@ -168,18 +171,6 @@ jobs:
         working-directory: aseprite/build/bin
         run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
      
-      - name: Ensure 7zip (Linux)
-        if: ${{ runner.os == 'Linux' }}
-        run: sudo apt-get update -qq && sudo apt-get install -y p7zip-full
-
-      - name: Ensure p7zip (macOS)
-        if: ${{ runner.os == 'macOS' }}
-        run: brew install p7zip
-
-      - name: Ensure 7zip (Windows)
-        if: ${{ runner.os == 'Windows' }}
-        run: choco install 7zip -y
-        
       - name: Create release zip (Windows/Linux)
         if: ${{ runner.os != 'macOS' }}
         working-directory: aseprite/build/bin
