@@ -146,16 +146,19 @@ jobs:
         shell: bash
         run: |
           cp -R mount/Aseprite.app .
-          # copy completed .app into bundle (current dir)
-          # remove old binary, replace with the one we just built
+          ls Aseprite.app
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -R ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          # replace data folder with built data
           rm -rf Aseprite.app/Contents/Resources/data
-          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
-          # detach after copying
+          cp -R ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data   
           hdiutil detach mount || true
-        
+          
+      - name: Create release zip (macOS)
+        if: ${{ runner.os == 'macOS' }}
+        working-directory: bundle
+        run: |
+          ls Aseprite.app
+          
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
@@ -192,7 +195,7 @@ jobs:
         working-directory: aseprite/build/bin
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
-
+      
       - name: Create release zip (macOS)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
