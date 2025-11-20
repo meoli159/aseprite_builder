@@ -46,8 +46,10 @@ jobs:
           body: Aseprite-${{ needs.fetch-aseprite-info.outputs.release-tag }}
           name: "Release Aseprite ${{ needs.fetch-aseprite-info.outputs.release-tag }}"
           skipIfReleaseExists: true
+          draft: true
           allowUpdates: true
-
+          
+          
   build-aseprite:
     name: Build Aseprite
     needs: create-release
