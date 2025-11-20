@@ -165,30 +165,25 @@ jobs:
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           rm -r mount
 
-      # - name: Clean Up Build folder
-      #   working-directory: aseprite/build/bin
-      #   shell: bash
-      #   run: |
-      #     find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
-      - name: Clean up build artifacts
-        working-directory: aseprite/build/bin
+      - name: Clean Up Build folder
+        working-directory: ${{ matrix.os == 'macOS' && 'bundle' || 'aseprite/build/bin' }}
         shell: bash
-        run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
-
+        run: |
+          find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
+      
       - name: Make portable zip
-        working-directory: aseprite/build/bin
+        working-directory: ${{ matrix.os == 'macOS' && 'bundle' || 'aseprite/build/bin' }}
         run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
 
       - name: Create release zip
-        working-directory: aseprite/build/bin
         run: |
-          7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
+          7z -tzip a ${{ runner.os == 'macOS' && 'bundle' || 'aseprite/build/bin' }}/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip.zip *
 
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
+          file: ${{ runner.os == 'macOS' && 'bundle' || 'aseprite/build/bin' }}/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           tag: ${{ needs.create-release.outputs.release-tag }}
           draft: true
