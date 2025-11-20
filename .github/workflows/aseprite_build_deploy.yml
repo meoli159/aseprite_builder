@@ -169,7 +169,7 @@ jobs:
         working-directory: bundle
         shell: bash
         run: |
-          find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
+           run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
       
       - name: Make portable zip
         working-directory: aseprite/build/bin
