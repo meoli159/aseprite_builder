@@ -46,6 +46,7 @@ jobs:
           body: Aseprite-${{ needs.fetch-aseprite-info.outputs.release-tag }}
           name: "Release Aseprite ${{ needs.fetch-aseprite-info.outputs.release-tag }}"
           skipIfReleaseExists: true
+          draft: true
 
   build-aseprite:
     name: Build Aseprite
@@ -171,6 +172,7 @@ jobs:
           find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
       
       - name: Clean Up Build folder
+        if: ${{ runner.os != 'macOS' }}
         working-directory: aseprite/build/bin
         shell: bash
         run: |
