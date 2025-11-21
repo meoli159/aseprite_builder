@@ -177,7 +177,7 @@ jobs:
       
      
       - name: Create release zip (Windows/Linux)
-        
+        if: ${{ runner.os != 'macOS' }}
         working-directory: aseprite/build/bin
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
@@ -189,16 +189,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
           # body: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-          tag_name: ${{ needs.create-release.outputs.release-tag }}
-          name: ${{ needs.create-release.outputs.release-tag }}
+          # tag_name: ${{ needs.create-release.outputs.release-tag }}
           draft: true
 
       - name: Upload release 
         uses: softprops/action-gh-release@v1
-        
+        if: ${{ runner.os != 'macOS' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           # body: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
-          tag_name: ${{ needs.create-release.outputs.release-tag }}
+          # tag_name: ${{ needs.create-release.outputs.release-tag }}
           draft: true
