@@ -157,20 +157,9 @@ jobs:
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           rm -rf mount
           
-      - name: Move bundle to build/bin (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: |
-          cp -rf Aseprite.app ../aseprite/build/bin/
-          
-      - name: Check bin
-        working-directory: aseprite/build/bin
-        run: |
-          ls 
-          
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
+        if: ${{ runner.os != 'macOS' }}
         shell: bash
         run: |
           find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
@@ -181,35 +170,34 @@ jobs:
       
      
       - name: Create release zip (Windows/Linux)
+        if: ${{ runner.os != 'macOS' }}
         working-directory: aseprite/build/bin
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
      
-      - name: Check bin
-        working-directory: aseprite/build/bin
+
+      - name: Create release zip (macOS)
+        if: ${{ runner.os == 'macOS' }}
+        working-directory: bundle
         run: |
-          ls 
-      # - name: Create release zip (macOS)
-      #   if: ${{ runner.os == 'macOS' }}
-      #   working-directory: bundle
-      #   run: |
-      #     7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
+          7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
     
   
-      # - name: Upload release (macOS)
-      #   if: ${{ runner.os == 'macOS' }}
-      #   uses: svenstaro/upload-release-action@v2
-      #   with:
-      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-      #     file: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-      #     asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-      #     tag: ${{ needs.create-release.outputs.release-tag }}
-      #     draft: true
+      - name: Upload release (macOS)
+        if: ${{ runner.os == 'macOS' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
+          asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
+          tag_name: ${{ needs.create-release.outputs.release-tag }}
+          draft: true
 
       - name: Upload release 
         uses: softprops/action-gh-release@v1
+        if: ${{ runner.os != 'macOS' }}
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           tag_name: ${{ needs.create-release.outputs.release-tag }}
