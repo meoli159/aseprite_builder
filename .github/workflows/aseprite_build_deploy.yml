@@ -140,23 +140,23 @@ jobs:
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
 
-      - name: Replace Binary (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: |
-          cp -R mount/Aseprite.app .
-          cp -r ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          rsync -av --ignore-existing "../aseprite/build/bin/data/" "Aseprite.app/Contents/Resources/data/"
-          hdiutil detach mount || true
+      # - name: Replace Binary (macOS only)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   shell: bash
+      #   run: |
+      #     cp -R mount/Aseprite.app .
+      #     cp -r ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+      #     rsync -av --ignore-existing "../aseprite/build/bin/data/" "Aseprite.app/Contents/Resources/data/"
+      #     hdiutil detach mount || true
            
-      - name: Clean up bundle (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: |
-          rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-          rm -rf mount
+      # - name: Clean up bundle (macOS only)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   shell: bash
+      #   run: |
+      #     rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
+      #     rm -rf mount
       
       - name: Create release zip (macOS)
         if: ${{ runner.os == 'macOS' }}
