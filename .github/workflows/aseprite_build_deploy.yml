@@ -156,12 +156,13 @@ jobs:
         run: |
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           rm -rf mount
+          
       - name: Move bundle to build/bin (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
         shell: bash
         run: |
-          mv Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip ../aseprite/build/bin/
+          mv Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip ./aseprite/build/bin/
      
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
@@ -204,4 +205,3 @@ jobs:
           asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           tag: ${{ needs.create-release.outputs.release-tag }}
           draft: true
-          overwrite: true
