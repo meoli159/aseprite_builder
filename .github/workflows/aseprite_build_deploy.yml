@@ -149,7 +149,7 @@ jobs:
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           rm -rf Aseprite.app/Contents/Resources/data
-          cp -r ../aseprite/build/bin/data/* Aseprite.app/Contents/Resources/data
+          rsync -a ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
           hdiutil detach mount || true
            
       - name: Clean up bundle (macOS only)
