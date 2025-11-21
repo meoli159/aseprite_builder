@@ -147,7 +147,7 @@ jobs:
         run: |
           cp -R mount/Aseprite.app .
           cp -r ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          rsync -a --ignore-existing ../aseprite/build/bin/data/* Aseprite.app/Contents/Resources/data
+          rsync -av --update "../aseprite/build/bin/data/" "Aseprite.app/Contents/Resources/data/"
           hdiutil detach mount || true
            
       - name: Clean up bundle (macOS only)
