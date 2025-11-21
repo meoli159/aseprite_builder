@@ -162,7 +162,7 @@ jobs:
         working-directory: bundle
         shell: bash
         run: |
-          mv Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip ./aseprite/build/bin/
+          mv Aseprite.app ./aseprite/build/bin/
      
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
@@ -175,7 +175,6 @@ jobs:
         run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
      
       - name: Create release zip (Windows/Linux)
-        if: ${{ runner.os != 'macOS' }}
         working-directory: aseprite/build/bin
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
