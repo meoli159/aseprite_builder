@@ -148,7 +148,7 @@ jobs:
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           rm -rf Aseprite.app/Contents/Resources/data
-          cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+          cp -R -n ../aseprite/build/bin/data/* Aseprite.app/Contents/Resources/data
           hdiutil detach mount || true
            
       - name: Clean up bundle (macOS only)
@@ -191,8 +191,9 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-          # body: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
+          body: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
           tag_name: ${{ needs.create-release.outputs.release-tag }}
+          name: ${{ needs.create-release.outputs.release-tag }}
           draft: true
 
       - name: Upload release 
@@ -201,6 +202,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
-          # body: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
+          body: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           tag_name: ${{ needs.create-release.outputs.release-tag }}
+          name: ${{ needs.create-release.outputs.release-tag }}
           draft: true
