@@ -147,7 +147,7 @@ jobs:
         run: |
           cp -R mount/Aseprite.app .
           cp -r ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          rsync -av --update "../aseprite/build/bin/data/" "Aseprite.app/Contents/Resources/data/"
+          rsync -av --ignore-existing "../aseprite/build/bin/data/" "Aseprite.app/Contents/Resources/data/"
           hdiutil detach mount || true
            
       - name: Clean up bundle (macOS only)
@@ -157,6 +157,12 @@ jobs:
         run: |
           rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
           rm -rf mount
+      
+      - name: Create release zip (macOS)
+        if: ${{ runner.os == 'macOS' }}
+        working-directory: bundle
+        run: |
+          7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *   
           
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
@@ -175,14 +181,6 @@ jobs:
         working-directory: aseprite/build/bin
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
-     
-
-      - name: Create release zip (macOS)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        run: |
-          7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
-    
   
       - name: Upload release (macOS)
         if: ${{ runner.os == 'macOS' }}
