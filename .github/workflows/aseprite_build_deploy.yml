@@ -162,8 +162,13 @@ jobs:
         working-directory: bundle
         shell: bash
         run: |
-          mv Aseprite.app ../aseprite/build/bin/
-     
+          cp -rf Aseprite.app ../aseprite/build/bin/
+          
+      - name: Check bin
+        working-directory: aseprite/build/bin
+        run: |
+          ls 
+          
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
         shell: bash
@@ -174,10 +179,7 @@ jobs:
         working-directory: aseprite/build/bin
         run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
       
-      - name: Check bin
-        working-directory: aseprite/build/bin
-        run: |
-          ls 
+     
       - name: Create release zip (Windows/Linux)
         working-directory: aseprite/build/bin
         run: |
@@ -205,10 +207,10 @@ jobs:
       #     draft: true
 
       - name: Upload release 
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
+          files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           asset_name: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
-          tag: ${{ needs.create-release.outputs.release-tag }}
+          tag_name: ${{ needs.create-release.outputs.release-tag }}
           draft: true
