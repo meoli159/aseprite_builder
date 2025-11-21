@@ -143,13 +143,13 @@ jobs:
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
       
-      # Has no idea why but its just work ( test on mac )
-      - name: Just need click open & close it (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: | 
-          open Aseprite.app
+      # # Has no idea why but its just work ( test on mac )
+      # - name: Just need click open & close it (macOS only)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   shell: bash
+      #   run: | 
+      #     open Aseprite.app
           
       - name: Replace Binary (macOS only)
         if: ${{ runner.os == 'macOS' }}
@@ -158,6 +158,7 @@ jobs:
         run: |
           cp -rf mount/Aseprite.app .
           hdiutil detach mount  
+          open Aseprite.app
           rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           rm -rf Aseprite.app/Contents/Resources/data
