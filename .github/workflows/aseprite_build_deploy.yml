@@ -150,13 +150,13 @@ jobs:
           rsync -av --update "../aseprite/build/bin/data/" "Aseprite.app/Contents/Resources/data/"
           hdiutil detach mount || true
            
-      # - name: Clean up bundle (macOS only)
-      #   if: ${{ runner.os == 'macOS' }}
-      #   working-directory: bundle
-      #   shell: bash
-      #   run: |
-      #     rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-      #     rm -rf mount
+      - name: Clean up bundle (macOS only)
+        if: ${{ runner.os == 'macOS' }}
+        working-directory: bundle
+        shell: bash
+        run: |
+          rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
+          rm -rf mount
       
       - name: Create release zip (macOS)
         if: ${{ runner.os == 'macOS' }}
@@ -177,7 +177,7 @@ jobs:
       
      
       - name: Create release zip (Windows/Linux)
-        if: ${{ runner.os != 'macOS' }}
+        
         working-directory: aseprite/build/bin
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
@@ -195,7 +195,7 @@ jobs:
 
       - name: Upload release 
         uses: softprops/action-gh-release@v1
-        if: ${{ runner.os != 'macOS' }}
+        
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
