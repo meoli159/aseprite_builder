@@ -124,7 +124,9 @@ jobs:
           cd build && ninja
           
       - name: Create bundle folder
-        run: mkdir -p bundle/mount
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          mkdir -p bundle/mount
       
       - name: Download Aseprite trial (macOS only)
         if: ${{ runner.os == 'macOS' }}
@@ -145,10 +147,13 @@ jobs:
         working-directory: bundle
         shell: bash
         run: |
-          cp -R mount/Aseprite.app .
+          cp -rf mount/Aseprite.app .
+          hdiutil detach mount
+          
+          rm -rf Aseprite.app/Contents/MacOS/aseprite
           cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          rsync -av --update "../aseprite/build/bin/data/" "Aseprite.app/Contents/Resources/data/"
-          hdiutil detach mount || true
+          rm -rf Aseprite.app/Contents/Resources/data
+          cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
            
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
