@@ -162,7 +162,7 @@ jobs:
         working-directory: bundle
         shell: bash
         run: |
-          mv Aseprite.app ./aseprite/build/bin/
+          mv Aseprite.app ../aseprite/build/bin/
      
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
