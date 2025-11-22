@@ -142,47 +142,47 @@ jobs:
         shell: bash
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-      - name: Move Aseprite trial out (macOS only)
+      - name: Move Aseprite trial out to build/bin (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
         shell: bash
         run: |
-          cp -rf mount/Aseprite.app .   
+          cp -rf mount/Aseprite.app ../aseprite/build/bin/   
           hdiutil detach mount
           
-      - name: Remove the quarantine Aseprite trial (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: |
-          xattr -r -d com.apple.quarantine Aseprite.app 
+      # - name: Remove the quarantine Aseprite trial (macOS only)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   shell: bash
+      #   run: |
+      #     xattr -r -d com.apple.quarantine Aseprite.app 
           
-      - name: Replace Binary (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: |        
-          cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+      # - name: Replace Binary (macOS only)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   shell: bash
+      #   run: |        
+      #     cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
+      #     cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
               
-      - name: Clean up bundle (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: |
-          rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-          rm -rf mount
+      # - name: Clean up bundle (macOS only)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   shell: bash
+      #   run: |
+      #     rm -f "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
+      #     rm -rf mount
       
-      - name: Create release zip (macOS)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        run: |
-          7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *   
+      # - name: Create release zip (macOS)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   working-directory: bundle
+      #   run: |
+      #     7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *   
   
           
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
-        if: ${{ runner.os != 'macOS' }}
+        # if: ${{ runner.os != 'macOS' }}
         shell: bash
         run: |
           find . -mindepth 1 ! \( -name 'aseprite' -o -name 'aseprite.exe' -o -name 'data' -prune \) -exec rm -rf {} +
@@ -191,28 +191,40 @@ jobs:
         working-directory: aseprite/build/bin
         run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
       
+      - name: Make portable zip
+        if: ${{ runner.os == 'macOS' }}
+        working-directory: aseprite/build/bin
+        run: |
+          echo "# This file is here so Aseprite behaves as a portable program" > ReadMe.txt
+          echo "" >> ReadMe.txt
+          echo "Remove quarantine or just open the aseprite trail then close it before copy the file from build" >> ReadMe.txt
+          echo "Copy the aseprite and data folder then replace it in the Aseprite.app" >> ReadMe.txt
+          echo "- xattr -r -d com.apple.quarantine Aseprite.app" >> ReadMe.txt
+          echo "- cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite" >> ReadMe.txt
+          echo "- cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data" >> ReadMe.txt
+
      
       - name: Create release zip (Windows/Linux)
-        if: ${{ runner.os != 'macOS' }}
+        # if: ${{ runner.os != 'macOS' }}
         working-directory: aseprite/build/bin
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
   
                
-      - name: Upload release (macOS)
-        if: ${{ runner.os == 'macOS' }}
-        uses: softprops/action-gh-release@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-          body: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-          name: Release ${{ needs.create-release.outputs.release-tag }}
-          tag_name: ${{ needs.create-release.outputs.release-tag }}
-          draft: true
+      # - name: Upload release (macOS)
+      #   if: ${{ runner.os == 'macOS' }}
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     files: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
+      #     body: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
+      #     name: Release ${{ needs.create-release.outputs.release-tag }}
+      #     tag_name: ${{ needs.create-release.outputs.release-tag }}
+      #     draft: true
 
       - name: Upload release 
         uses: softprops/action-gh-release@v1
-        if: ${{ runner.os != 'macOS' }}
+        # if: ${{ runner.os != 'macOS' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
