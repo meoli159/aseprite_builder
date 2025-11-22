@@ -148,7 +148,7 @@ jobs:
         working-directory: bundle
         shell: bash
         run: |
-          sudo xattr -r -d com.apple.quarantine mount/Aseprite.app 
+          xattr -r -d com.apple.quarantine mount/Aseprite.app 
           
       - name: Replace Binary (macOS only)
         if: ${{ runner.os == 'macOS' }}
