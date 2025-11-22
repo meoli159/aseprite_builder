@@ -142,14 +142,19 @@ jobs:
         shell: bash
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
-      
-      - name: Remove the quarantine Aseprite trial (macOS only)
+      - name: Move Aseprite trial out (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
         shell: bash
         run: |
           cp -rf mount/Aseprite.app .   
           hdiutil detach mount
+          
+      - name: Remove the quarantine Aseprite trial (macOS only)
+        if: ${{ runner.os == 'macOS' }}
+        working-directory: bundle
+        shell: bash
+        run: |
           xattr -r -d com.apple.quarantine Aseprite.app 
           
       - name: Replace Binary (macOS only)
@@ -159,8 +164,7 @@ jobs:
         run: |        
           cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
-          
-          
+              
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
