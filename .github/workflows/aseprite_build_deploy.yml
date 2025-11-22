@@ -148,17 +148,18 @@ jobs:
         working-directory: bundle
         shell: bash
         run: |
+          cp -rf mount/Aseprite.app .   
+          hdiutil detach mount
           xattr -r -d com.apple.quarantine mount/Aseprite.app 
           
       - name: Replace Binary (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
         shell: bash
-        run: |
-          cp -rf mount/Aseprite.app .        
+        run: |        
           cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
           cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
-          hdiutil detach mount | true
+          
           
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
