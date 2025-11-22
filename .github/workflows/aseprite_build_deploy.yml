@@ -143,28 +143,16 @@ jobs:
         run: |
           printf 'y\n' | hdiutil attach -verbose -quiet -nobrowse -noverify -noautoopen -mountpoint mount "Aseprite-${{ needs.create-release.outputs.release-tag }}-trial-macOS.dmg"
       
-      # Has no idea why but its just work ( test on mac )
-      - name: Just need click open & close it (macOS only)
-        if: ${{ runner.os == 'macOS' }}
-        working-directory: bundle
-        shell: bash
-        run: | 
-          cp -rf mount/Aseprite.app . 
-          xattr -r -d com.apple.quarantine Aseprite.app
-          open Aseprite.app
-          sleep 10
-          pkill -x Aseprite || true
-          
       - name: Replace Binary (macOS only)
         if: ${{ runner.os == 'macOS' }}
         working-directory: bundle
         shell: bash
         run: |
-          hdiutil detach mount  
-          rm -rf Aseprite.app/Contents/MacOS/aseprite
+          cp -rf mount/Aseprite.app . 
+          xattr -r -d com.apple.quarantine Aseprite.app 
           cp -rf ../aseprite/build/bin/aseprite Aseprite.app/Contents/MacOS/aseprite
-          rm -rf Aseprite.app/Contents/Resources/data
           cp -rf ../aseprite/build/bin/data Aseprite.app/Contents/Resources/data
+          hdiutil detach mount | true
           
       - name: Clean up bundle (macOS only)
         if: ${{ runner.os == 'macOS' }}
@@ -179,15 +167,7 @@ jobs:
         working-directory: bundle
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *   
-      - name: Upload release (macOS)
-        if: ${{ runner.os == 'macOS' }}
-        uses: softprops/action-gh-release@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-          body: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
-          tag_name: ${{ needs.create-release.outputs.release-tag }}
-          draft: true    
+  
           
       - name: Clean Up Build folder
         working-directory: aseprite/build/bin
@@ -207,7 +187,17 @@ jobs:
         run: |
           7z -tzip a Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip *
   
-     
+               
+      - name: Upload release (macOS)
+        if: ${{ runner.os == 'macOS' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: bundle/Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
+          body: Aseprite-${{ needs.create-release.outputs.release-tag }}-macOS.zip
+          name: Release ${{ needs.create-release.outputs.release-tag }}
+          tag_name: ${{ needs.create-release.outputs.release-tag }}
+          draft: true
 
       - name: Upload release 
         uses: softprops/action-gh-release@v1
@@ -217,5 +207,5 @@ jobs:
           files: aseprite/build/bin/Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           body: Aseprite-${{ needs.create-release.outputs.release-tag }}-${{ runner.os }}.zip
           name: Release ${{ needs.create-release.outputs.release-tag }}
-          # tag_name: ${{ needs.create-release.outputs.release-tag }}
+          tag_name: ${{ needs.create-release.outputs.release-tag }}
           draft: true
